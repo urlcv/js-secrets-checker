@@ -20,7 +20,7 @@ class JsSecretsCheckerTool implements ToolInterface
 
     public function summary(): string
     {
-        return 'Paste front-end JavaScript and instantly find hard-coded API keys, tokens, endpoints, and sensitive strings before attackers do.';
+        return 'Enter a URL to scan its front-end JavaScript for hard-coded API keys, tokens, endpoints, and sensitive strings before attackers find them.';
     }
 
     public function descriptionMd(): ?string
@@ -28,7 +28,7 @@ class JsSecretsCheckerTool implements ToolInterface
         return <<<'MD'
 ## JavaScript Secrets Checker
 
-Paste any front-end JavaScript — a bundle, a single file, or a snippet — and get an instant audit of every hard-coded secret, credential, or sensitive-looking string hiding in it.
+Enter any public URL and we'll fetch the page, extract every inline and external JavaScript asset, and scan them against 30+ patterns for hard-coded secrets.
 
 ### What it detects
 
@@ -47,15 +47,11 @@ Each finding is tagged **critical**, **high**, **medium**, or **low** so you can
 
 ### Who it's for
 
-- Front-end developers reviewing bundles before deploy
+- Front-end developers checking production bundles before or after deploy
 - Security engineers auditing third-party scripts
-- DevOps teams checking CI artifacts for leaked credentials
+- DevOps teams checking CI artefacts for leaked credentials
 - Bug bounty hunters looking for low-hanging fruit
 - Anyone who's ever thought "surely nobody hard-coded a key in the client bundle"
-
-### Privacy
-
-Everything runs in your browser. Your code is never sent to a server, never stored, never logged.
 MD;
     }
 
@@ -81,12 +77,21 @@ MD;
 
     public function tags(): array
     {
-        return ['javascript', 'secrets', 'api-keys', 'tokens', 'security', 'scanner'];
+        return ['javascript', 'secrets', 'api-keys', 'tokens', 'security', 'scanner', 'devtools'];
     }
 
     public function inputSchema(): array
     {
-        return [];
+        return [
+            'url' => [
+                'type'        => 'string',
+                'label'       => 'Website URL',
+                'placeholder' => 'https://example.com',
+                'required'    => true,
+                'max_length'  => 2048,
+                'help'        => 'Enter the full URL of the page to scan.',
+            ],
+        ];
     }
 
     public function run(array $input): array
@@ -96,7 +101,7 @@ MD;
 
     public function rateLimitPerMinute(): int
     {
-        return 0;
+        return 10;
     }
 
     public function cacheTtlSeconds(): int
